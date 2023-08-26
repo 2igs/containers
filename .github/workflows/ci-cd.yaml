@@ -3,7 +3,10 @@ on:
   pull_request:
     branches:
     - main
-
+    - "testmain"
+  push:
+    branches:
+      - "testmain"
 env:
   IMAGE_REGISTRY: docker.io
   DIFF_URL: "${{github.event.pull_request.diff_url}}"
