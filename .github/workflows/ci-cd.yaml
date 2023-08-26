@@ -17,7 +17,7 @@ jobs:
       uses: actions/checkout@v3
     - name: Get modified images
       run: |
-        IMAGES=$(curl -fsL https://github.com/2igs/images/pull/1.diff \
+        IMAGES=$(curl -fsL ${{ gitea.event.pull_request.diff_url }} \
         | sed -ne 's/^diff --git a\/2igs\///gp' \
         | awk -F'/' '{print $1}' | sed '/^$/d' | uniq)
         NUM_IMAGES=$(printf "%s\n" $IMAGES | sed '/^$/d' | awk 'END{print NR}')
