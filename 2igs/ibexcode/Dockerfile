@@ -18,7 +18,7 @@ RUN printf "export PATH=\"$PATH:%s\"" "/root/.local/bin" >> .bashrc
 ## Configure code-server
 COPY code-server/settings.json /root/.local/share/code-server/Machine/settings.json
 ## Install system tools
-RUN apt update && apt install mold nano python3-ipykernel podman -y && apt clean
+RUN apt update && apt install mold nano python3-ipykernel podman curl -y && apt clean
 ## Set code-server command
 ENTRYPOINT [ "/bin/bash", "--login", "-c" ]
 CMD ["code-server --auth=none --bind-addr=0.0.0.0"]
