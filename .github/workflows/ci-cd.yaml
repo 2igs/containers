@@ -1,11 +1,53 @@
 name: CI/CD
-
-on: 
+on:
+  pull_request:
+    branches:
+    - main
   push:
-
-jobs:
+    branches:
+      - "main"
+env:
+  IMAGE_REGISTRY: docker.io
+  DIFF_URL: "${{github.event.pull_request.diff_url}}"
+jobs: 
   ci-cd:
     runs-on: ubuntu-latest
     steps:
-    - name: Say Hello
-      run: echo "Hello!"
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Get modified images
+      run: |
+        IMAGES=$(curl -fsL https://github.com/2igs/images/pull/1.diff \
+        | sed -ne 's/^diff --git a\/2igs\///gp' \
+        | awk -F'/' '{print $1}' | sed '/^$/d' | uniq)
+        NUM_IMAGES=$(printf "%s\n" $IMAGES | sed '/^$/d' | awk 'END{print NR}')
+        if [ ${NUM_IMAGES} != "0" ]
+        then
+          echo -e "Changed images:\n$IMAGES"
+          echo "Number of images changed: $NUM_IMAGES"
+          if [ ${NUM_IMAGES} == "1" ]
+          then 
+            echo "IMAGE=${IMAGES}" >> $GITHUB_ENV
+            exit 0
+          else
+            echo "::error::More than one image was changed!"
+            exit 1
+          fi
+        else
+          echo "::error::No image was changed!" >&2
+          exit 1
+        fi
+    - name: Build container Image
+      run: |
+        docker -v
+        cd 2igs/$IMAGE
+        IMAGE_TAG="${IMAGE_REGISTRY}/${{ secrets.DOCKER_CD_USER }}/${IMAGE}:${GITHUB_SHA:0:10}"
+        echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
+        docker build -t $IMAGE_TAG . 
+    - name: Push container Image
+      if: github.ref == 'refs/heads/main'
+      run: |
+        docker login -u=${{ secrets.DOCKER_CD_USER }} -p=${{ secrets.DOCKER_CD_TOKEN }} docker.io
+        docker push $IMAGE_TAG \
+        && echo Pushed image $IMAGE_TAG
+        docker logout
