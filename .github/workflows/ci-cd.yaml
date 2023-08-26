@@ -6,49 +6,45 @@ on:
 
 env:
   IMAGE_REGISTRY: docker.io
-  API_URL: https://git2.chester.local/api
-
+  DIFF_URL: "${{github.event.pull_request.diff_url}}"
 jobs: 
   ci-cd:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v3
-      
     - name: Get modified images
       run: |
-        URL='${{ gitea.event.pull_request.diff_url }}'
-        IMAGES=`curl -s $URL 2>&2 | sed -ne 's/^+++\sb\/2igs\///gp' | awk -F'/' '{print $1}' | awk '!a[$1]++'`
-        NUM_IMAGES=`echo "$IMAGES\n" | sed '/^$/d' | awk 'END{print NR}'`
-        
+        IMAGES=$(curl -fsL https://github.com/2igs/images/pull/1.diff \
+        | sed -ne 's/^diff --git a\/2igs\///gp' \
+        | awk -F'/' '{print $1}' | sed '/^$/d' | uniq)
+        NUM_IMAGES=$(printf "%s\n" $IMAGES | sed '/^$/d' | awk 'END{print NR}')
         if [ ${NUM_IMAGES} != "0" ]
         then
-        echo -e "Changed images:\n$IMAGES"
-        fi
-
-        echo "Number of images changed: $NUM_IMAGES"
-
-        if [ ${NUM_IMAGES} == "1" ]
-        then 
-          echo "IMAGE=${IMAGES}" >> $GITHUB_ENV
-          exit 0
-        elif [ ${NUM_IMAGES} == "0" ]
-        then 
-          echo "No image was changed!" >&2
-          exit 1
-        else 
-          echo "More than one image was changed!" >&2
+          echo -e "Changed images:\n$IMAGES"
+          echo "Number of images changed: $NUM_IMAGES"
+          if [ ${NUM_IMAGES} == "1" ]
+          then 
+            echo "IMAGE=${IMAGES}" >> $GITHUB_ENV
+            exit 0
+          else
+            echo "::error::More than one image was changed!"
+            exit 1
+          fi
+        else
+          echo "::error::No image was changed!" >&2
           exit 1
         fi
-
     - name: Build container Image
       run: |
+        docker -v
         cd 2igs/$IMAGE
-        IMAGE_TAG="${IMAGE_REGISTRY}/${GITHUB_REPOSITORY}/${IMAGE}:${GITHUB_SHA:0:10}"
+        IMAGE_TAG="${IMAGE_REGISTRY}/${{ secrets.DOCKER_CD_USER }}/${IMAGE}:${GITHUB_SHA:0:10}"
         echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
-        podman build --isolation=chroot -t $IMAGE_TAG --ignorefile=.containerignore . 
-
+        docker build -t $IMAGE_TAG . 
     - name: Push container Image
       run: |
-        podman push --creds=nouser:${{ secrets.PUBLISH_TOKEN }} $IMAGE_TAG \
+        docker login -u=${{ secrets.DOCKER_CD_USER }} -p=${{ secrets.DOCKER_CD_TOKEN }} docker.io
+        docker push $IMAGE_TAG \
         && echo Pushed image $IMAGE_TAG
+        docker logout
