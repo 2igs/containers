@@ -43,6 +43,7 @@ jobs:
         echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
         docker build -t $IMAGE_TAG . 
     - name: Push container Image
+      if: github.ref == 'refs/heads/main'
       run: |
         docker login -u=${{ secrets.DOCKER_CD_USER }} -p=${{ secrets.DOCKER_CD_TOKEN }} docker.io
         docker push $IMAGE_TAG \
