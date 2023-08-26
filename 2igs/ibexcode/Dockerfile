@@ -27,7 +27,7 @@ CMD ["code-server --auth=none --bind-addr=0.0.0.0"]
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 ## Configure rust
 COPY rust/config.toml rust/rustfmt.toml /root/.cargo
-## Set cargo binaries environment variables
+## Set cargo binaries to PATH
 ENV PATH="$PATH:/root/.cargo/bin"
 
 # Add Kubernetes tools
