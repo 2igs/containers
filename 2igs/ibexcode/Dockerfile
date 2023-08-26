@@ -33,9 +33,9 @@ ENV PATH="$PATH:/root/.cargo/bin"
 # Add Kubernetes tools
 ## Install helm
 RUN wget https://get.helm.sh/helm-v3.12.3-linux-arm64.tar.gz \
-  && tar -zxvf helm-v3.12.2-linux-amd64.tar.gz \
+  && tar -zxvf helm-v3.12.3-linux-arm64.tar.gz \
   && mv linux-amd64/helm /usr/local/bin \
-  && rm -rf helm-v3.12.2-linux-amd64.tar.gz linux-amd64 \
+  && rm -rf helm-v3.12.3-linux-arm64.tar.gz linux-amd64 \
   ;
 ## Install OPA(Open Policy Agent)
 RUN curl -L -o opa https://openpolicyagent.org/downloads/v0.55.0/opa_linux_amd64_static \
