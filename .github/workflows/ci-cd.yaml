@@ -3,9 +3,7 @@ on:
   pull_request:
     branches:
     - main
-  push:
-    branches:
-      - "main"
+
 env:
   IMAGE_REGISTRY: docker.io
   DIFF_URL: "${{github.event.pull_request.diff_url}}"
@@ -17,7 +15,7 @@ jobs:
       uses: actions/checkout@v3
     - name: Get modified images
       run: |
-        IMAGES=$(curl -fsL https://github.com/2igs/images/pull/1.diff \
+        IMAGES=$(curl -fsL $DIFF_URL \
         | sed -ne 's/^diff --git a\/2igs\///gp' \
         | awk -F'/' '{print $1}' | sed '/^$/d' | uniq)
         NUM_IMAGES=$(printf "%s\n" $IMAGES | sed '/^$/d' | awk 'END{print NR}')
@@ -45,7 +43,6 @@ jobs:
         echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
         docker build -t $IMAGE_TAG . 
     - name: Push container Image
-      if: github.ref == 'refs/heads/main'
       run: |
         docker login -u=${{ secrets.DOCKER_CD_USER }} -p=${{ secrets.DOCKER_CD_TOKEN }} docker.io
         docker push $IMAGE_TAG \
