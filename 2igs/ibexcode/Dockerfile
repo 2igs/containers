@@ -18,7 +18,7 @@ RUN printf "export PATH=\"$PATH:%s\"" "/root/.local/bin" >> .bashrc
 ## Configure code-server
 COPY code-server/settings.json /root/.local/share/code-server/Machine/settings.json
 ## Install system tools
-RUN apt update && apt install mold nano python3-ipykernel podman curl -y && apt clean
+RUN apt update && apt install mold nano python3-ipykernel podman -y && apt clean
 ## Set code-server command
 ENTRYPOINT [ "/bin/bash", "--login", "-c" ]
 CMD ["code-server --auth=none --bind-addr=0.0.0.0"]
@@ -33,7 +33,7 @@ ENV PATH="$PATH:/root/.cargo/bin"
 
 # Add Kubernetes tools
 ## Install helm
-RUN wget https://github.com/helm/helm/releases/download/v3.12.3/helm-v3.12.3-linux-amd64.tar.gz \
+RUN wget https://get.helm.sh/helm-v3.12.3-linux-arm64.tar.gz \
   && tar -zxvf helm-v3.12.2-linux-amd64.tar.gz \
   && mv linux-amd64/helm /usr/local/bin \
   && rm -rf helm-v3.12.2-linux-amd64.tar.gz linux-amd64 \
