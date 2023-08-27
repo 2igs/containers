@@ -5,6 +5,8 @@ on:
     - main
     types:
     - closed
+    - edited
+    - opened
 
 env:
   IMAGE_REGISTRY: docker.io
