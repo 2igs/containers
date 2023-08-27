@@ -7,6 +7,7 @@ on:
 env:
   IMAGE_REGISTRY: docker.io
   DIFF_URL: "${{github.event.pull_request.diff_url}}"
+  IS_MERGED: github.event.pull_request.merged == true
 jobs: 
   ci-cd:
     runs-on: ubuntu-latest
@@ -31,6 +32,8 @@ jobs:
             echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV    
             BUILD_CONTEXT="2igs/$IMAGE_NAME"
             echo "BUILD_CONTEXT=${BUILD_CONTEXT}" >> $GITHUB_ENV    
+            APP_VERSION=$(sed -ne 's/^version: //gp' ${BUILD_CONTEXT}/metadata.yaml )
+            echo "APP_VERSION=${APP_VERSION}" >> $GITHUB_ENV    
             exit 0
           else
             echo "::error::More than one image was changed!"
@@ -40,12 +43,17 @@ jobs:
           echo "::error::No image was changed!" >&2
           exit 1
         fi
-    - name: Build and push container Image
-      run: |
-        docker buildx create --use --driver=docker-container
-        docker login -u=${{ secrets.DOCKER_CD_USER }} -p=${{ secrets.DOCKER_CD_TOKEN }} docker.io
-        docker buildx build --push -t ${IMAGE_REGISTRY}/${{ secrets.DOCKER_CD_USER }}/${IMAGE_NAME}:${IMAGE_TAG} \
-        --cache-from type=registry,ref=${IMAGE_REGISTRY}/${{ secrets.DOCKER_CD_USER }}/cache:${IMAGE_NAME} \
-        --cache-to type=registry,ref=${IMAGE_REGISTRY}/${{ secrets.DOCKER_CD_USER }}/cache:${IMAGE_NAME} \
-        ${BUILD_CONTEXT}
-        docker logout
+    - name:
+      run: 
+        echo $IS_MERGED
+# - name: Build and push container Image
+#   run: |
+#     docker buildx create --use --driver=docker-container
+#     if
+#     docker login -u=${{ secrets.DOCKER_CD_USER }} -p=${{ secrets.DOCKER_CD_TOKEN }} docker.io
+#     docker buildx build --push -t ${IMAGE_REGISTRY}/${{ secrets.DOCKER_CD_USER }}/${IMAGE_NAME}:${IMAGE_TAG} \
+#     --cache-from type=registry,ref=${IMAGE_REGISTRY}/${{ secrets.DOCKER_CD_USER }}/cache:${IMAGE_NAME} \
+#     --cache-to type=registry,ref=${IMAGE_REGISTRY}/${{ secrets.DOCKER_CD_USER }}/cache:${IMAGE_NAME} \
+#     ${BUILD_CONTEXT}
+#     docker logout
+# if: 
