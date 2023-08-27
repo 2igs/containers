@@ -7,7 +7,7 @@ on:
 env:
   IMAGE_REGISTRY: docker.io
   DIFF_URL: "${{github.event.pull_request.diff_url}}"
-  IS_MERGED: github.event.pull_request.merged == true
+  IS_MERGED: ${{github.event.pull_request.merged == true}}
 jobs: 
   ci-cd:
     runs-on: ubuntu-latest
