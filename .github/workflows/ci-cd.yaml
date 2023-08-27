@@ -56,12 +56,12 @@ jobs:
           echo "::error::No image was changed!" >&2
           exit 1
         fi
-    # - name: Build and push container Image
-    #   run: |
-    #     docker buildx create --use --driver=docker-container
-    #     docker login -u=${{ secrets.DOCKER_CD_USER }} -p=${{ secrets.DOCKER_CD_TOKEN }} docker.io
-    #     docker buildx build --push -t ${IMAGE_REGISTRY}/${{ secrets.DOCKER_CD_USER }}/${IMAGE_NAME}:${IMAGE_TAG} \
-    #     --cache-from type=registry,ref=${IMAGE_REGISTRY}/${{ secrets.DOCKER_CD_USER }}/cache:${IMAGE_NAME} \
-    #     --cache-to type=registry,ref=${IMAGE_REGISTRY}/${{ secrets.DOCKER_CD_USER }}/cache:${IMAGE_NAME} \
-    #     ${BUILD_CONTEXT}
-    #     docker logout
+    - name: Build and push container Image
+      run: |
+        docker buildx create --use --driver=docker-container
+        docker login -u=${{ secrets.DOCKER_CD_USER }} -p=${{ secrets.DOCKER_CD_TOKEN }} docker.io
+        docker buildx build --push -t ${IMAGE_REGISTRY}/${{ secrets.DOCKER_CD_USER }}/${IMAGE_NAME}:${IMAGE_TAG} \
+        --cache-from type=registry,ref=${IMAGE_REGISTRY}/${{ secrets.DOCKER_CD_USER }}/cache:${IMAGE_NAME} \
+        --cache-to type=registry,ref=${IMAGE_REGISTRY}/${{ secrets.DOCKER_CD_USER }}/cache:${IMAGE_NAME} \
+        ${BUILD_CONTEXT}
+        docker logout
