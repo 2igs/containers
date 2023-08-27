@@ -50,17 +50,13 @@ jobs:
           echo "::error::No image was changed!" >&2
           exit 1
         fi
-    - name: none
-      run: 
-        echo $IS_MERGED
-    # - name: Build and push container Image
-    #   run: |
-    #     docker buildx create --use --driver=docker-container
-    #     if
-    #     docker login -u=${{ secrets.DOCKER_CD_USER }} -p=${{ secrets.DOCKER_CD_TOKEN }} docker.io
-    #     docker buildx build --push -t ${IMAGE_REGISTRY}/${{ secrets.DOCKER_CD_USER }}/${IMAGE_NAME}:${IMAGE_TAG} \
-    #     --cache-from type=registry,ref=${IMAGE_REGISTRY}/${{ secrets.DOCKER_CD_USER }}/cache:${IMAGE_NAME} \
-    #     --cache-to type=registry,ref=${IMAGE_REGISTRY}/${{ secrets.DOCKER_CD_USER }}/cache:${IMAGE_NAME} \
-    #     ${BUILD_CONTEXT}
-    #     docker logout
-    # if: 
+    - name: Build and push container Image
+      run: |
+        docker buildx create --use --driver=docker-container
+        if
+        docker login -u=${{ secrets.DOCKER_CD_USER }} -p=${{ secrets.DOCKER_CD_TOKEN }} docker.io
+        docker buildx build --push -t ${IMAGE_REGISTRY}/${{ secrets.DOCKER_CD_USER }}/${IMAGE_NAME}:${IMAGE_TAG} \
+        --cache-from type=registry,ref=${IMAGE_REGISTRY}/${{ secrets.DOCKER_CD_USER }}/cache:${IMAGE_NAME} \
+        --cache-to type=registry,ref=${IMAGE_REGISTRY}/${{ secrets.DOCKER_CD_USER }}/cache:${IMAGE_NAME} \
+        ${BUILD_CONTEXT}
+        docker logout
