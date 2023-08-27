@@ -5,7 +5,7 @@ on:
     - main
     types:
     - closed
-    - edited
+    - synchronize
     - opened
 
 env:
