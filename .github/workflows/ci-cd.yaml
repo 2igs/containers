@@ -40,7 +40,7 @@ jobs:
 
             IMAGE_TAG=$([ "${IS_MERGED}" == "true" ] && echo "${APP_VERSION}" || echo "${IMAGE_SHA}")
             echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV    
-            
+
             exit 0
           else
             echo "::error::More than one image was changed!"
@@ -50,17 +50,17 @@ jobs:
           echo "::error::No image was changed!" >&2
           exit 1
         fi
-    - name:
+    - name: none
       run: 
         echo $IS_MERGED
-    - name: Build and push container Image
-      run: |
-        docker buildx create --use --driver=docker-container
-        if
-        docker login -u=${{ secrets.DOCKER_CD_USER }} -p=${{ secrets.DOCKER_CD_TOKEN }} docker.io
-        docker buildx build --push -t ${IMAGE_REGISTRY}/${{ secrets.DOCKER_CD_USER }}/${IMAGE_NAME}:${IMAGE_TAG} \
-        --cache-from type=registry,ref=${IMAGE_REGISTRY}/${{ secrets.DOCKER_CD_USER }}/cache:${IMAGE_NAME} \
-        --cache-to type=registry,ref=${IMAGE_REGISTRY}/${{ secrets.DOCKER_CD_USER }}/cache:${IMAGE_NAME} \
-        ${BUILD_CONTEXT}
-        docker logout
-    if: 
+    # - name: Build and push container Image
+    #   run: |
+    #     docker buildx create --use --driver=docker-container
+    #     if
+    #     docker login -u=${{ secrets.DOCKER_CD_USER }} -p=${{ secrets.DOCKER_CD_TOKEN }} docker.io
+    #     docker buildx build --push -t ${IMAGE_REGISTRY}/${{ secrets.DOCKER_CD_USER }}/${IMAGE_NAME}:${IMAGE_TAG} \
+    #     --cache-from type=registry,ref=${IMAGE_REGISTRY}/${{ secrets.DOCKER_CD_USER }}/cache:${IMAGE_NAME} \
+    #     --cache-to type=registry,ref=${IMAGE_REGISTRY}/${{ secrets.DOCKER_CD_USER }}/cache:${IMAGE_NAME} \
+    #     ${BUILD_CONTEXT}
+    #     docker logout
+    # if: 
