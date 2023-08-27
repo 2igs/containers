@@ -5,6 +5,6 @@
 
 ## Usage
 
-```shell
-podman run --rm -p8080:80 {image_name}
+```sh
+docker run --rm -p8080:80 2igs/ibexcode:0.0.2
 ```
