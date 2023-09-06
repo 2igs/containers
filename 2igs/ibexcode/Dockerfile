@@ -20,7 +20,7 @@ COPY code-server/settings.json /root/.local/share/code-server/Machine/settings.j
 RUN apt update && apt install mold nano python3-ipykernel podman curl -y && apt clean
 ## Set code-server command
 ENTRYPOINT [ "/bin/bash", "--login", "-c" ]
-CMD ["code-server --auth=none --bind-addr=0.0.0.0"]
+CMD ["code-server"]
 
 # Add rust components
 ## Install rust
